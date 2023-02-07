@@ -38,6 +38,17 @@ class SocketService with ChangeNotifier{
  
       }); 
 
+      socket.on('nuevo-mensaje', (payload){
+        //Probar en consola de navegador con socket.emit('emitir-mensaje',{name: 'bry', message:'hola'});
+        print('nuevo-mensaje!: ');
+        print('name:' + payload['name']);
+        print('mesage:' + payload['message']);
+        print(payload.containsKey('message2') ? payload['message2']: 'no hay message2');
+         
+      });
+
+      socket.off('nuevo-meensaje');
+
 
   }
 
