@@ -4,6 +4,7 @@ import 'package:band_names/services/socket_service.dart';
 import 'package:band_names/src/models/band.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 
 
@@ -70,9 +71,20 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: bands.length,
-        itemBuilder: (_, i) => _bandTile(bands[i]), 
+      body: Column(
+        children: <Widget>[
+
+            _showGraph(),
+
+
+            Expanded(
+            child: ListView.builder(
+            itemCount: bands.length,
+            itemBuilder: (_, i) => _bandTile(bands[i]), 
+                ),
+            ),
+        ],
+
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -193,5 +205,36 @@ class _HomePageState extends State<HomePage> {
 
     Navigator.pop(context);
   }
+
+  Widget _showGraph() {
+
+    Map<String, double> dataMap = new Map();
+    // dataMap.putIfAbsent('Flutter', () => 5);
+    bands.forEach((band) {
+      dataMap.putIfAbsent( band.name, () => band.votes.toDouble() );
+    });
+
+    final List<Color> colorList = [
+      Colors.blue[50] as Color,
+      Colors.blue[200] as Color,
+      Colors.pink[50] as Color,
+      Colors.pink[200] as Color,
+      Colors.yellow[50] as Color,
+      Colors.yellow[200] as Color,
+    ];
+
+    return dataMap.isNotEmpty ? Container(
+      padding: EdgeInsets.only(top: 10),
+      width: double.infinity,
+      height: 200,
+      child: PieChart(
+          dataMap: dataMap,
+          animationDuration: Duration(milliseconds: 800), 
+          colorList: colorList, 
+          chartType: ChartType.ring,
+      )
+    ): LinearProgressIndicator();  
+  }
+
 
 }
