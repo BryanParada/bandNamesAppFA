@@ -27,20 +27,21 @@ class _HomePageState extends State<HomePage> {
 
     final socketService = Provider.of<SocketService>(context, listen: false); //*false, no se necesita redibujar nada ya que estamos en el initState!
 
-    socketService.socket.on('active-bands', (payload) {
-      // print(payload);
+    socketService.socket.on('active-bands', _handleActiveBands );
 
-      this.bands = (payload as List)
+    super.initState();
+    
+  }
+
+  _handleActiveBands( dynamic payload ){
+
+    this.bands = (payload as List)
       .map( (band) => Band.fromMap(band) )
       .toList();
 
       //para que redibuje widget completo cuando se reciba un evento
       setState(() {});
 
-    });
-
-    super.initState();
-    
   }
 
   @override
@@ -89,16 +90,17 @@ class _HomePageState extends State<HomePage> {
     return Dismissible(
       key: Key(band.id),
       direction: DismissDirection.startToEnd,
-      onDismissed: ( direction ){ 
-        // otra forma de declarar direction si no lo utilizamos es _
-        print('direction: $direction');
-        print('id: ${band.id}');
+      // onDismissed: ( direction ){ 
+      //   // otra forma de declarar direction si no lo utilizamos es _
+      //   //print('direction: $direction');
+      //   //print('id: ${band.id}');
         
-        //emitir: delete-band
-        //{'id': band.id}  
-          socketService.emit('delete-band', {'id': band.id}); 
+      //   //emitir: delete-band
+      //   //{'id': band.id}  
+      //     socketService.emit('delete-band', {'id': band.id}); 
         
-      },
+      // },
+      onDismissed: ( _ ) => socketService.emit('delete-band', {'id': band.id}),
       background: Container(
         padding: EdgeInsets.only(left: 8.0),
         color: Colors.red,
@@ -114,10 +116,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 title: Text(band.name),
                 trailing: Text('${band.votes}', style: TextStyle(fontSize: 20)),
-                onTap: (){
-                  // print(band.id);
-                  socketService.socket.emit('vote-band', { 'id': band.id });
-                },
+                // onTap: (){
+                //   // print(band.id);
+                //   socketService.socket.emit('vote-band', { 'id': band.id });
+                // },
+                onTap: () => socketService.socket.emit('vote-band', { 'id': band.id }),
               ),
     );
   }
@@ -130,8 +133,7 @@ class _HomePageState extends State<HomePage> {
       //Android
     return showDialog(
       context: context,
-       builder: ( _ ) {
-        return AlertDialog(
+       builder: ( _ ) => AlertDialog(
           title: Text('New band name:'),
           content: TextField(
             controller: textController,
@@ -144,8 +146,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => addBandToList( textController.text) 
               )
           ],
-        );
-       }
+        )
       );
 
 
